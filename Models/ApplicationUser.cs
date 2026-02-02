@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 
-namespace KanbanApi.Models;
+namespace KanbanApp.Models;
 
 public class ApplicationUser : IdentityUser
 {
@@ -9,3 +9,4 @@ public class ApplicationUser : IdentityUser
     
     public ICollection<BoardMember> BoardMembers { get; set; } = new List<BoardMember>();
 }
+

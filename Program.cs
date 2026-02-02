@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using KanbanApi.Data;
-using KanbanApi.Models;
+using KanbanApp.Data;
+using KanbanApp.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 

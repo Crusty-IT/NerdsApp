@@ -1,4 +1,4 @@
-﻿namespace KanbanApi.Models;
+namespace KanbanApp.Models;
 
 public class Board
 {
@@ -14,4 +14,5 @@ public class Board
     
     public ICollection<BoardMember> BoardMembers { get; set; } = new List<BoardMember>();
 }
+
 

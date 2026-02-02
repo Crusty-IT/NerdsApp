@@ -1,4 +1,4 @@
-﻿namespace KanbanApi.Models;
+namespace KanbanApp.Models;
 
 public class Card
 {

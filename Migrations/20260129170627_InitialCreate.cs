@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace KanbanApi.Migrations
+namespace KanbanApp.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration
@@ -334,3 +334,4 @@ namespace KanbanApi.Migrations
         }
     }
 }
+

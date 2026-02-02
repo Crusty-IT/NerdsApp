@@ -1,4 +1,4 @@
-# GenericTemplate
+# KanbanApp
 
 **[Insert a brief description of your application here. Describe its purpose, functionality, etc.]**
 
