@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using KanbanApp.Data;
 using KanbanApp.Models;
+using KanbanApp.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +13,7 @@ builder.Services.AddIdentityApiEndpoints<ApplicationUser>()
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
+builder.Services.AddScoped<IBoardService, BoardService>();
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
