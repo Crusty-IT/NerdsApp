@@ -90,7 +90,7 @@ public class UserProfileTests : IClassFixture<WebApplicationFactory<Program>>
                 foreach (var d in toRemove) services.Remove(d);
 
                 services.AddDbContext<ApplicationDbContext>(options =>
-                    options.UseInMemoryDatabase("TestDb2")); // ← inna baza niż w AuthTests!
+                    options.UseInMemoryDatabase("TestDb2"));
             });
         }).CreateClient();
     }
