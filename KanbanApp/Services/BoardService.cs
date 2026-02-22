@@ -22,23 +22,44 @@ public class BoardService : IBoardService
             .ToListAsync();
     }
 
-    public Task<Board?> GetByIdAsync(int boardId, string userId)
+    public async Task<Board?> GetByIdAsync(int boardId, string userId)
     {
-        throw new NotImplementedException();
+        return await _context.Boards
+            .Include(b => b.Columns)
+            .FirstOrDefaultAsync(b => b.Id == boardId 
+                                      && b.BoardMembers.Any(bm => bm.UserId == userId));
     }
 
-    public Task<Board> CreateAsync(string name, string? description, string ownerUserId)
+    public async Task<Board> CreateAsync(string name, string? description, string ownerUserId)
     {
-        throw new NotImplementedException();
+        var board = new Board { Name = name, Description = description };
+    
+        _context.Boards.Add(board);
+        _context.BoardMembers.Add(new BoardMember { Board = board, UserId = ownerUserId, Role = BoardRole.Owner });
+    
+        await _context.SaveChangesAsync();
+        return board;
     }
 
-    public Task<Board?> UpdateAsync(int boardId, string userId, string name, string? description)
+    public async Task<Board?> UpdateAsync(int boardId, string userId, string name, string? description)
     {
-        throw new NotImplementedException();
+        var board = await GetByIdAsync(boardId, userId);
+        if (board == null) return null;
+
+        board.Name = name;
+        board.Description = description;
+
+        await _context.SaveChangesAsync();
+        return board;
     }
 
-    public Task<bool> DeleteAsync(int boardId, string userId)
+    public async Task<bool> DeleteAsync(int boardId, string userId)
     {
-        throw new NotImplementedException();
+        var board = await GetByIdAsync(boardId, userId);
+        if (board == null) return false;
+
+        _context.Boards.Remove(board);
+        await _context.SaveChangesAsync();
+        return true;
     }
 }
