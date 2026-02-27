@@ -3,6 +3,7 @@ using KanbanApp.Data;
 using KanbanApp.Models;
 using KanbanApp.Services;
 using System.Security.Claims;
+using KanbanApp.DTOs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,6 +42,14 @@ app.MapGet("/api/users/me", async (ClaimsPrincipal user, IUserService userServic
     var profile = await userService.GetUserProfileAsync(userId!);
     if (profile == null) return Results.NotFound();
     return Results.Ok(profile);
+}).RequireAuthorization();
+
+app.MapPost("/api/boards", async (CreateBoardDto dto, IBoardService boardService, ClaimsPrincipal user) =>
+{
+    var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+    var board = await boardService.CreateAsync(dto.BoardName, null, userId!);
+    return TypedResults.Created($"/api/boards/{board.Id}", new { board.Id, board.Name, board.Description });
+    
 }).RequireAuthorization();
 
 app.Run();
