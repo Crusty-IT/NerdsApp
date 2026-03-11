@@ -69,13 +69,16 @@ app.MapPost("/api/boards", async (CreateBoardDto dto, IBoardService boardService
 app.MapPost("/api/boards/{boardId}/members", async (
     int boardId,
     string userId,
-    IBoardService boardService,
     IAuthorizationService authorizationService,
     ClaimsPrincipal user,
     ApplicationDbContext db) =>
 {
     var authResult = await authorizationService.AuthorizeAsync(user, boardId, "IsBoardOwner");
     if (!authResult.Succeeded) return Results.Forbid();
+    
+    var alreadyMember = await db.BoardMembers
+        .AnyAsync(m => m.BoardId == boardId && m.UserId == userId);
+    if (alreadyMember) return Results.Conflict("User is already a member of this board.");
 
     var member = new BoardMember { BoardId = boardId, UserId = userId, Role = BoardRole.Member };
     db.BoardMembers.Add(member);
