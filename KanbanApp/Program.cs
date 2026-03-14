@@ -165,6 +165,35 @@ columns.MapDelete("/{columnId}", async (int boardId, int columnId, ApplicationDb
     return Results.NoContent();
 });
 
+app.MapPut("/api/boards/{boardId}", async (
+    int boardId,
+    UpdateBoardDto dto,
+    IBoardService boardService,
+    IAuthorizationService authorizationService,
+    ClaimsPrincipal user) =>
+{
+    var authResult = await authorizationService.AuthorizeAsync(user, boardId, "IsBoardOwner");
+    if (!authResult.Succeeded) return Results.Forbid();
+
+    var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+    var board = await boardService.UpdateAsync(boardId, userId!, dto.Name, null);
+    return board is null ? Results.NotFound() : Results.Ok(new { board.Id, board.Name });
+}).RequireAuthorization();
+
+app.MapDelete("/api/boards/{boardId}", async (
+    int boardId,
+    IBoardService boardService,
+    IAuthorizationService authorizationService,
+    ClaimsPrincipal user) =>
+{
+    var authResult = await authorizationService.AuthorizeAsync(user, boardId, "IsBoardOwner");
+    if (!authResult.Succeeded) return Results.Forbid();
+
+    var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+    var deleted = await boardService.DeleteAsync(boardId, userId!);
+    return deleted ? Results.NoContent() : Results.NotFound();
+}).RequireAuthorization();
+
 app.Run();
 
 public partial class Program { }
