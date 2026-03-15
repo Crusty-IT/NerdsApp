@@ -19,6 +19,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IBoardService, BoardService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ICardService, CardService>();
 
 builder.Services.AddAuthorization(options =>
 {
@@ -193,6 +194,39 @@ app.MapDelete("/api/boards/{boardId}", async (
     var deleted = await boardService.DeleteAsync(boardId, userId!);
     return deleted ? Results.NoContent() : Results.NotFound();
 }).RequireAuthorization();
+
+var cards = app.MapGroup("/api/boards/{boardId}/cards")
+    .RequireAuthorization();
+
+cards.MapPost("/", async (int boardId, CreateCardDto dto, ICardService cardService,
+    IAuthorizationService authorizationService, ClaimsPrincipal user) =>
+{
+    var authResult = await authorizationService.AuthorizeAsync(user, boardId, "IsBoardMember");
+    if (!authResult.Succeeded) return Results.Forbid();
+
+    var card = await cardService.CreateAsync(boardId, dto.ColumnId, dto.Title, dto.Description);
+    return card is null ? Results.BadRequest("Column not found.") : TypedResults.Created($"/api/boards/{boardId}/cards/{card.Id}", new { card.Id, card.Title, card.Description, card.ColumnId });
+});
+
+cards.MapPut("/{cardId}", async (int boardId, int cardId, UpdateCardDto dto, ICardService cardService,
+    IAuthorizationService authorizationService, ClaimsPrincipal user) =>
+{
+    var authResult = await authorizationService.AuthorizeAsync(user, boardId, "IsBoardMember");
+    if (!authResult.Succeeded) return Results.Forbid();
+
+    var card = await cardService.UpdateAsync(boardId, cardId, dto.Title, dto.Description, dto.ColumnId);
+    return card is null ? Results.NotFound() : Results.Ok(new { card.Id, card.Title, card.Description, card.ColumnId });
+});
+
+cards.MapDelete("/{cardId}", async (int boardId, int cardId, ICardService cardService,
+    IAuthorizationService authorizationService, ClaimsPrincipal user) =>
+{
+    var authResult = await authorizationService.AuthorizeAsync(user, boardId, "IsBoardMember");
+    if (!authResult.Succeeded) return Results.Forbid();
+
+    var deleted = await cardService.DeleteAsync(boardId, cardId);
+    return deleted ? Results.NoContent() : Results.NotFound();
+});
 
 app.Run();
 

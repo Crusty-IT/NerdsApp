@@ -1,6 +1,6 @@
 ﻿namespace KanbanApp.Services;
 
-using KanbanApp.Data;
+using Data;
 
 public class UserService : IUserService
 {
